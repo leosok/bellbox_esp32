@@ -1,17 +1,35 @@
-# main.py -- put your code here!
+import micropython
+import gc
+import select
 
-from misc import status_led
+# Display memory available at startup.
+gc.collect()
+micropython.mem_info()
 
-import wifimgr
+from wifi_setup.wifi_setup import WiFiSetup
 
-status_led(False)
-wlan = wifimgr.get_connection()
-if wlan is None:
-    print("Could not initialize the network connection.")
-    while True:
-        pass  # you shall not pass :D
+# You should give every device a unique name (to use as its access point name).
+ws = WiFiSetup("Klingelkasten")
+sta = ws.connect_or_setup()
+del ws
+print("WiFi is setup")
 
+# Display memory available once the WiFi setup process is complete.
+gc.collect()
+micropython.mem_info()
 
-# Main Code goes here, wlan is a working network.WLAN(STA_IF) instance.
-print("ESP OK")
-status_led(True)
+# Demo that the device is now accessible by starting a web server that serves
+# the contents of ./www - just an index.html file that displays a cute ghost.
+
+from slim.slim_server import SlimServer
+from slim.fileserver_module import FileserverModule
+
+poller = select.poll()
+
+slim_server = SlimServer(poller)
+slim_server.add_module(FileserverModule({"html": "text/html"}))
+
+while True:
+    for (s, event) in poller.ipoll(0):
+        slim_server.pump(s, event)
+    slim_server.pump_expire()

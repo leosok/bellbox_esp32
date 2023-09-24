@@ -1,8 +1,8 @@
-# boot.py -- run on boot-up
+# This file is executed on every boot (including wake-boot from deepsleep)
+#import esp
+#esp.osdebug(None)
+import gc
+#import webrepl
+#webrepl.start()
+gc.collect()
 
-
-# import network
-# station = network.WLAN(network.STA_IF)
-# station.active(True)
-# station.connect('Fritz of Darkness', 'sokolovbader1')
-# station.isconnected()
