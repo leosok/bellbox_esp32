@@ -1,0 +1,90 @@
+
+body {
+    margin: 0;
+    padding: 0;
+
+    margin: 0;
+    padding-top: 20vh;
+    height: 70vh;
+    /* 100% of the viewport height */
+}   
+
+
+
+:root {
+
+    --clay: #7D6050;
+
+    --melon: #F2994A;
+
+
+    --trans: transparent;
+    --trans05: rgba(255, 255, 255, 0.05);
+    --trans1: rgba(255, 255, 255, 0.1);
+    --trans2: rgba(255, 255, 255, 0.2);
+    --trans4: rgba(255, 255, 255, 0.4);
+}
+
+
+.overlapping-shields {
+    background-color: var(--clay);
+    background-image:
+        repeating-radial-gradient(circle at 2.5em -0.5em,
+            var(--trans),
+            var(--trans) 1em,
+            var(--melon) 1.05em,
+            var(--melon) 1.5em,
+            var(--trans) 1.55em),
+        repeating-radial-gradient(circle at 2.5em 5.5em,
+            var(--trans),
+            var(--trans) 1em,
+            var(--melon) 1.05em,
+            var(--melon) 1.5em,
+            var(--trans) 1.55em);
+    background-size: 5em 5em;
+}
+
+/*  Styling for the buttons */
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    width: 80%;
+    text-align: center;
+    margin: 15px auto;
+    padding: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.5s ease;
+    /* Transition effect */
+
+    /* Top-down linear gradient using original brass-like colors */
+    background: linear-gradient(to bottom, #cca300, #cca333, #997300);
+
+
+    color: var(--clay);
+
+    /* Box shadow for depth */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1), inset 0px -2px 1px rgba(255, 255, 255, 0.1);
+
+    font-weight: 600;
+    /* Make text bolder */
+    font-variant: small-caps;
+    /* Display text in small-caps */
+    font-family: Georgia, serif;
+    letter-spacing: 0.2em;
+}
+
+li.success {
+    background: linear-gradient(to bottom, #ffd700, #ffcc00, #ffd700);
+}
+
+/* Unsuccessful click */
+li.error {
+    background: linear-gradient(to bottom, #ff0000, #cc0000, #990000);
+}
+
+
