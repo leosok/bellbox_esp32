@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Klingelkasten Sokolov</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="styles.css">
+       
+        <script>
+            // Function to make an AJAX call based on button number
+            function openURL(buttonNum, element) {
+                fetch('/api/' + buttonNum)
+                .then(response => {
+                    if (response.status === 200) {
+                        element.classList.add('success');
+                    } else {
+                        element.classList.add('error');
+                    }
+                    // Set a timeout to revert the button color back to blue after 2 seconds
+                    setTimeout(() => {
+                        element.classList.remove('success');
+                    }, 2000);
+
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                })
+                .catch((error) => {
+                    element.classList.add('error');
+
+                    // Set a timeout to revert the button color back to blue after 2 seconds
+                    setTimeout(() => {
+                        element.classList.remove('error');
+                    }, 2000);
+                    console.error('Error:', error);
+                });
+            }
+        </script>
+    </head>
+    <body class="overlapping-shields">
+       
+        <ul>
+            <li onclick="openURL('wohnzimmer', this)">Wohnzimmer</li>
+            <li onclick="openURL('bad', this)">Badezimmer</li>
+            <li onclick="openURL('schlafzimmer', this)">Schlafzimmer</li>
+            <li onclick="openURL('entree', this)">Entrée</li>
+        </ul>
+
+    </body>
+</html>
