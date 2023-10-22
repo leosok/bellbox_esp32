@@ -6,6 +6,10 @@ import select
 gc.collect()
 micropython.mem_info()
 
+from audio_player import play_tune
+from audio import bellbox_sounds, rtttl
+play_tune(rtttl.RTTTL(bellbox_sounds.beep))
+
 from lib.wifi_setup.wifi_setup import WiFiSetup
 
 # You should give every device a unique name (to use as its access point name).
@@ -55,6 +59,7 @@ def RequestTest(request) :
             'message': f"Pin found for {path_action}: {pin_to_trigger}"
         })
         trigger_pin(pin_num=pin_to_trigger)
+        play_tune(rtttl.RTTTL(bellbox_sounds.down_tune))
     else:
         print(f"Pin NOT found for {path_action}")
         request.ReturnNotFound()
