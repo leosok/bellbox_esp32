@@ -22,15 +22,13 @@ print("WiFi is setup")
 gc.collect()
 micropython.mem_info()
 
-###### Device is connected ########
 
-from lib.slim.slim_server import SlimServer
-from lib.slim.fileserver_module import FileserverModule
-from lib.slim.web_route_module import HttpMethod, WebRouteModule, RegisteredRoute
+from lib.microdot import Microdot, send_file
 from machine import Pin
 from time import sleep
 
-poller = select.poll()
+app = Microdot()
+
 
 def trigger_pin(pin_num: int, sleep_time_sec=0.2):
     """
@@ -41,62 +39,41 @@ def trigger_pin(pin_num: int, sleep_time_sec=0.2):
     sleep(sleep_time_sec)
     pin.off()
 
-
-def RequestFast(request) :
-    print("Fast")
-    request.Response.ReturnOkJSON({
-        'message': "Fast"
-    })
-    gc.collect()
-   
-
-def RequestTest(request) :
+@app.route('/api/<action>')
+def trigger_pin_web(request, action) :
     
     action_pins = {
         'wohnzimmer': 16,
         'schlafzimmer': 35,
         'bad': 33,
-        'entree': 39 
+        'entree': 39,
+        'klingel': 37 
     }
 
-    path_action = request.Path.split("/")[-1]
-    pin_to_trigger = action_pins.get(path_action)
+    pin_to_trigger = action_pins.get(action)
 
     if pin_to_trigger:
-        print(f"Pin found for {path_action}: {pin_to_trigger}")
-        request.Response.ReturnOkJSON({
-            'message': f"Pin found for {path_action}: {pin_to_trigger}"
-        })
+        print(f"Pin found for {action}: {pin_to_trigger}")
         trigger_pin(pin_num=pin_to_trigger)
-        play_tune(rtttl.RTTTL(bellbox_sounds.down_tune))
+        return{
+            'message': f"Pin found for {action}: {pin_to_trigger}"
+        }
+
+        #play_tune(rtttl.RTTTL(bellbox_sounds.down_tune))
     else:
-        print(f"Pin NOT found for {path_action}")
-        request.ReturnNotFound()
+        print(f"Pin NOT found for {action}")
+        app.abort(404, "Pin not found")
 
+@app.route('/')
+def index(request):
+    return send_file('www/index.html', max_age=86400)
 
-slim_server = SlimServer(poller)
-
-slim_server.add_module(WebRouteModule([
-        RegisteredRoute(HttpMethod.GET, "/api/schlafzimmer", RequestTest),
-        RegisteredRoute(HttpMethod.GET, "/api/bad", RequestTest),
-        RegisteredRoute(HttpMethod.GET, "/api/wohnzimmer", RequestTest),
-        RegisteredRoute(HttpMethod.GET, "/api/entree", RequestTest),
-        RegisteredRoute(HttpMethod.GET, "/api/fast", RequestFast),
-    ]))
-
-slim_server.add_module(FileserverModule({"html": "text/html", 'css': "text/css"}))
-
-
-def run_server():
-    while True:
-        # for (s, event) in poller.ipoll(0):
-        #     slim_server.pump(s, event)
-        # slim_server.pump_expire()
-
-        for (s, event) in poller.ipoll(0):
-            # If event has bits other than POLLIN or POLLOUT then print it.
-            if event & ~(select.POLLIN | select.POLLOUT):
-                print(event)
-            slim_server.pump(s, event)
-
-run_server()
+@app.route('/<path:path>')
+def static(request, path):
+    if '..' in path:
+        # directory traversal is not allowed
+        return 'Not found', 404
+    return send_file('www/' + path, max_age=86400)
+    
+app.run(port=80, debug=True)
+print("microdot stated")
