@@ -41,13 +41,22 @@ def trigger_pin(pin_num: int, sleep_time_sec=0.2):
     sleep(sleep_time_sec)
     pin.off()
 
+
+def RequestFast(request) :
+    print("Fast")
+    request.Response.ReturnOkJSON({
+        'message': "Fast"
+    })
+    gc.collect()
+   
+
 def RequestTest(request) :
     
     action_pins = {
         'wohnzimmer': 16,
-        'schlafzimmer': 18,
+        'schlafzimmer': 35,
         'bad': 33,
-        'entree': 35
+        'entree': 39 
     }
 
     path_action = request.Path.split("/")[-1]
@@ -72,11 +81,22 @@ slim_server.add_module(WebRouteModule([
         RegisteredRoute(HttpMethod.GET, "/api/bad", RequestTest),
         RegisteredRoute(HttpMethod.GET, "/api/wohnzimmer", RequestTest),
         RegisteredRoute(HttpMethod.GET, "/api/entree", RequestTest),
+        RegisteredRoute(HttpMethod.GET, "/api/fast", RequestFast),
     ]))
 
 slim_server.add_module(FileserverModule({"html": "text/html", 'css': "text/css"}))
 
-while True:
-    for (s, event) in poller.ipoll(0):
-        slim_server.pump(s, event)
-    slim_server.pump_expire()
+
+def run_server():
+    while True:
+        # for (s, event) in poller.ipoll(0):
+        #     slim_server.pump(s, event)
+        # slim_server.pump_expire()
+
+        for (s, event) in poller.ipoll(0):
+            # If event has bits other than POLLIN or POLLOUT then print it.
+            if event & ~(select.POLLIN | select.POLLOUT):
+                print(event)
+            slim_server.pump(s, event)
+
+run_server()

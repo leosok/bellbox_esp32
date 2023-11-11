@@ -1,5 +1,5 @@
-from rtttl.rtttl import RTTTL
-from rtttl import songs
+from audio.rtttl import RTTTL
+from audio import songs
 import time
 
 # Raspberry Pi Pico RTTTL example

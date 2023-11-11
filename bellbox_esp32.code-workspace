@@ -4,8 +4,8 @@
 			"path": "."
 		},
 		{
-			"name": "serial:/COM11",
-			"uri": "serial://com11/"
+			"name": "serial:/COM14",
+			"uri": "serial://com14"
 		}
 	]
 }
