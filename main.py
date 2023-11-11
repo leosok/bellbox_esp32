@@ -23,38 +23,39 @@ gc.collect()
 micropython.mem_info()
 
 
-from lib.microdot import Microdot, send_file
+from lib.microdot_asyncio import Microdot, send_file
 from machine import Pin
-from time import sleep
+import uasyncio as asyncio
 
 app = Microdot()
 
 
-def trigger_pin(pin_num: int, sleep_time_sec=0.2):
+async def trigger_pin(pin_num: int, sleep_time_ms=200):
     """
     Triggers a Pin for 
     """
     pin = Pin(pin_num, Pin.OUT)
     pin.on()
-    sleep(sleep_time_sec)
+    await asyncio.sleep_ms(sleep_time_ms)
     pin.off()
 
+
 @app.route('/api/<action>')
-def trigger_pin_web(request, action) :
+async def trigger_pin_web(request, action) :
     
-    action_pins = {
-        'wohnzimmer': 16,
-        'schlafzimmer': 35,
-        'bad': 33,
-        'entree': 39,
-        'klingel': 37 
+    action_pins:dict[str, tuple[int,int]] = {
+        'wohnzimmer': (16, 200),
+        'schlafzimmer': (35, 200),
+        'bad': (33, 200),
+        'entree': (39, 200),
+        'klingel': (37, 125), 
     }
 
-    pin_to_trigger = action_pins.get(action)
-
-    if pin_to_trigger:
-        print(f"Pin found for {action}: {pin_to_trigger}")
-        trigger_pin(pin_num=pin_to_trigger)
+    pin_data = action_pins.get(action, None)
+    if pin_data:
+        print(f"Pin found for {action}: {pin_data}")
+        pin_to_trigger, sleep_time_ms = pin_data
+        await trigger_pin(pin_num=pin_to_trigger, sleep_time_ms=sleep_time_ms)
         return{
             'message': f"Pin found for {action}: {pin_to_trigger}"
         }
